@@ -1,6 +1,6 @@
-# Building Your First AI Agent with LangChain - Copy & Paste Tutorial
+# Building Your First AI Agent with LangChain 
 
-This tutorial will guide you through creating your first AI agent using LangChain and Google's Gemini 1.5 Flash (free tier). Each code block is ready to copy and paste!
+This tutorial will guide you through creating your first AI agent using LangChain and Google's Gemini 1.5 Flash (free tier). 
 
 ## What is an AI Agent?
 
