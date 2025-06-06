@@ -1,0 +1,357 @@
+# Building Your First AI Agent with LangChain - Copy & Paste Tutorial
+
+This tutorial will guide you through creating your first AI agent using LangChain and Google's Gemini 1.5 Flash (free tier). Each code block is ready to copy and paste!
+
+## What is an AI Agent?
+
+An AI agent is a program that uses a large language model (LLM) to reason, make decisions, and perform tasks autonomously. Unlike a chatbot that only responds to prompts, an agent can interact with tools (e.g., calculators, APIs) to solve problems. For example, it can answer "What is 5 + 3 * 2?" by reasoning about the query and using a math tool.
+
+## Setup Instructions
+
+### Step 1: Prerequisites
+- **Python 3.8+**: Install from [python.org](https://python.org)
+- **Code Editor**: VS Code, PyCharm, or Jupyter Notebook
+- **Terminal Access**: For installing packages and running scripts
+- **Google Account**: For the Gemini API key
+
+### Step 2: Install Required Libraries
+
+Copy and paste this command in your terminal:
+
+```bash
+pip install langchain langchain-google-genai
+```
+
+### Step 3: Get a Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click **Create API Key**
+4. Copy the key and store it securely
+
+**Why Gemini?** Google's Gemini 1.5 Flash is free (up to 15 requests per minute or 1,500 per day) and doesn't require billing setup in most countries.
+
+### Step 4: Create Your Project
+
+1. Create a new folder called `first-ai-agent`
+2. Inside this folder, create a file called `agent.py`
+
+## Complete Code Example
+
+Copy and paste this entire code block into your `agent.py` file:
+
+```python
+# Building Your First AI Agent with LangChain and Gemini
+# Make sure you've installed: pip install langchain langchain-google-genai
+
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools import tool
+
+# Replace "YOUR_GEMINI_API_KEY" with your actual API key
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+
+# Initialize Gemini LLM
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key=GEMINI_API_KEY
+)
+
+# Define a calculator tool
+@tool
+def calculator(query: str) -> str:
+    """Evaluates a math expression like '5 + 3 * 2' or '10 / 2'."""
+    try:
+        # Use eval to calculate math expressions
+        result = eval(query)
+        return str(result)
+    except Exception as e:
+        return f"Error: Invalid math expression - {str(e)}"
+
+# List of tools available to the agent
+tools = [calculator]
+
+# Initialize the agent
+agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True  # Shows the agent's thinking process
+)
+
+# Test the agent
+if __name__ == "__main__":
+    print("🤖 AI Agent is ready! Testing with a math problem...")
+    print("-" * 50)
+    
+    # Test query
+    test_query = "What is 5 + 3 * 2?"
+    response = agent.run(test_query)
+    
+    print("-" * 50)
+    print(f"Final Answer: {response}")
+```
+
+## How to Run Your Agent
+
+### Step 1: Add Your API Key
+Replace `"YOUR_GEMINI_API_KEY"` in the code with your actual Gemini API key.
+
+### Step 2: Run the Code
+In your terminal, navigate to your project folder and run:
+
+```bash
+python agent.py
+```
+
+### Expected Output
+You should see something like:
+```
+🤖 AI Agent is ready! Testing with a math problem...
+--------------------------------------------------
+
+> Entering new AgentExecutor chain...
+I need to calculate 5 + 3 * 2. Let me use the calculator tool for this.
+
+Action: calculator
+Action Input: 5 + 3 * 2
+
+Observation: 11
+Thought: The calculation is complete. 5 + 3 * 2 equals 11 (following order of operations: 3 * 2 = 6, then 5 + 6 = 11).
+
+Final Answer: 11
+
+--------------------------------------------------
+Final Answer: 11
+```
+
+## Enhanced Version with Memory
+
+For a more advanced agent that remembers previous conversations, copy this code:
+
+```python
+# Enhanced AI Agent with Memory
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools import tool
+from langchain.memory import ConversationBufferMemory
+
+# Replace with your API key
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+
+# Initialize Gemini LLM
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key=GEMINI_API_KEY
+)
+
+# Calculator tool
+@tool
+def calculator(query: str) -> str:
+    """Evaluates math expressions like '5 + 3 * 2' or 'sqrt(16)'."""
+    try:
+        # For more advanced math, you could import math module
+        import math
+        # Make math functions available
+        safe_dict = {
+            "__builtins__": {},
+            "abs": abs,
+            "round": round,
+            "pow": pow,
+            "sqrt": math.sqrt,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "pi": math.pi,
+            "e": math.e
+        }
+        result = eval(query, safe_dict)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+tools = [calculator]
+
+# Add memory to remember conversations
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+# Initialize agent with memory
+agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+    memory=memory,
+    verbose=True
+)
+
+# Interactive loop
+if __name__ == "__main__":
+    print("🤖 AI Agent with Memory is ready!")
+    print("Type 'quit' to exit")
+    print("-" * 50)
+    
+    while True:
+        user_input = input("\nYou: ")
+        if user_input.lower() in ['quit', 'exit', 'bye']:
+            print("Goodbye! 👋")
+            break
+            
+        try:
+            response = agent.run(user_input)
+            print(f"\nAgent: {response}")
+        except Exception as e:
+            print(f"Error: {str(e)}")
+```
+
+## Free-Tier Optimization Tips
+
+### 1. Environment Variables (Recommended)
+Instead of putting your API key directly in code, create a `.env` file:
+
+```bash
+# Create .env file in your project folder
+echo "GEMINI_API_KEY=your_actual_api_key_here" > .env
+```
+
+Then install and use python-dotenv:
+
+```bash
+pip install python-dotenv
+```
+
+```python
+# At the top of your agent.py
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+```
+
+### 2. Rate Limit Management
+Add this to handle rate limits gracefully:
+
+```python
+import time
+from functools import wraps
+
+def rate_limit_handler(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            if "429" in str(e):  # Rate limit error
+                print("Rate limit hit. Waiting 60 seconds...")
+                time.sleep(60)
+                return func(*args, **kwargs)
+            raise e
+    return wrapper
+
+# Use it like this:
+@rate_limit_handler
+def run_agent_query(query):
+    return agent.run(query)
+```
+
+## Next Steps & Extensions
+
+### 1. Add More Tools
+```python
+@tool
+def web_search(query: str) -> str:
+    """Searches the web for information."""
+    # You could integrate with Google Search API, DuckDuckGo, etc.
+    return f"Web search results for: {query}"
+
+@tool  
+def file_reader(filename: str) -> str:
+    """Reads content from a text file."""
+    try:
+        with open(filename, 'r') as file:
+            return file.read()
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
+```
+
+### 2. Deploy as Web API
+Install FastAPI:
+```bash
+pip install fastapi uvicorn
+```
+
+Create `api.py`:
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+# Import your agent code here
+
+app = FastAPI()
+
+class Query(BaseModel):
+    question: str
+
+@app.post("/ask")
+async def ask_agent(query: Query):
+    try:
+        response = agent.run(query.question)
+        return {"response": response}
+    except Exception as e:
+        return {"error": str(e)}
+
+# Run with: uvicorn api:app --reload
+```
+
+## Troubleshooting
+
+### Common Issues:
+1. **API Key Error**: Make sure your API key is correct and has no extra spaces
+2. **Import Error**: Run `pip install langchain langchain-google-genai` again
+3. **Rate Limit**: Wait a minute and try again, or implement the rate limit handler above
+
+### Free Tier Limits:
+- **Gemini**: 15 requests/minute, 1,500/day
+- **Monitor usage**: Check Google AI Studio dashboard
+
+## Alternative APIs
+
+If you want to try other APIs:
+
+### OpenAI (Requires billing setup)
+```bash
+pip install openai
+```
+
+```python
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="gpt-3.5-turbo",
+    openai_api_key="your_openai_key"
+)
+```
+
+### Hugging Face (Some models free)
+```bash
+pip install langchain-huggingface
+```
+
+```python
+from langchain_huggingface import HuggingFaceEndpoint
+
+llm = HuggingFaceEndpoint(
+    repo_id="microsoft/DialoGPT-medium",
+    huggingfacehub_api_token="your_hf_token"
+)
+```
+
+## Summary
+
+You now have a working AI agent! The code is ready to copy, paste, and run. Start with the basic version, then experiment with the enhanced features. Remember to:
+
+1. Replace API keys with your actual keys
+2. Stay within free-tier limits
+3. Experiment with different tools and capabilities
+4. Check the [LangChain documentation](https://python.langchain.com/) for more advanced features
+
+May the Force be with your code. 
