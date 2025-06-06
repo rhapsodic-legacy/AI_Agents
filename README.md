@@ -7,7 +7,7 @@ This repository is designed for university students learning to build AI agents 
 Whether you're a beginner or advancing toward complex projects, this repo provides code, tutorials, and insights to help you master AI agent development.
 
 ### Contents
-The repository currently includes one folder, with more to be added as the series expands:
+The repository currently includes two folders, with more to be added as the series expands:
 
 - **A_Langchain_Simple**: The starting point for your AI agent journey.
   - `first_agent.ipynb`: A Google Colab notebook containing a simple but functional AI agent built with LangChain and Google’s Gemini 1.5 Flash (free tier). This agent uses a calculator tool to solve math queries, like "What is 5 + 3 * 2?".
@@ -16,6 +16,12 @@ The repository currently includes one folder, with more to be added as the serie
     - How to set up your environment and obtain a Gemini API key.
     - A step-by-step walkthrough of the agent code.
     - Tips for optimizing free-tier usage to stay within API limits.
+
+- **B_Langchain_Expanded**: Multi-Tool AI Agent
+  - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).
+  - langchain_expanded.ipynb: Google Colab notebook with an agent integrating three tools: calculator (math queries), DuckDuckGo web search (e.g., Python tutorials), and file reader (local text files). Includes memory and verbose output.
+  - example.txt: Sample file for the file reader tool.
+  - walkthrough.txt: Student-friendly guide explaining the code, tools, and next steps.
 
 Future folders will include more advanced agents, such as those integrating web APIs, memory, or multi-tool workflows.
 
