@@ -1,0 +1,606 @@
+# LangChain ReAct Agent 
+
+This guide provides a complete implementation of a sophisticated LangChain-ReAct based AI agent using Google's Gemini 1.5 Flash model.
+
+## 1. Installation
+
+```bash
+pip install langchain langchain-google-genai duckduckgo-search requests beautifulsoup4 python-dateutil
+```
+
+## 2. Complete Code Implementation
+
+```python
+import time
+import os
+import json
+import requests
+import logging
+import math
+import platform
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+from dateutil import parser as date_parser
+from bs4 import BeautifulSoup
+
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import create_react_agent, AgentExecutor
+from langchain.prompts import PromptTemplate
+from langchain.tools import tool
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.schema import SystemMessage
+from duckduckgo_search import DDGS
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Initialize the LLM
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key="YOUR_GOOGLE_API_KEY_HERE",  # Replace with your actual API key
+    temperature=0.3,
+    max_tokens=1024,
+    max_retries=2,
+    request_timeout=30
+)
+
+# Tool Definitions
+@tool
+def advanced_calculator(expression: str) -> str:
+    """
+    Evaluates mathematical expressions safely. Supports:
+    - Basic operations: +, -, *, /, **, %
+    - Math functions: sin, cos, tan, sqrt, log, exp, abs
+    - Constants: pi, e
+    Example: 'sin(pi/2) + sqrt(16)'
+    """
+    try:
+        # Safe evaluation with math functions
+        safe_dict = {
+            "__builtins__": {},
+            "abs": abs, "round": round, "min": min, "max": max,
+            "sin": math.sin, "cos": math.cos, "tan": math.tan,
+            "sqrt": math.sqrt, "log": math.log, "exp": math.exp,
+            "pi": math.pi, "e": math.e, "pow": pow
+        }
+        
+        result = eval(expression, safe_dict, {})
+        
+        # Format result
+        if isinstance(result, float):
+            if result.is_integer():
+                return str(int(result))
+            else:
+                return f"{result:.6f}".rstrip('0').rstrip('.')
+        return str(result)
+        
+    except Exception as e:
+        return f"Error in calculation: {str(e)}"
+
+@tool
+def enhanced_web_search(query: str) -> str:
+    """
+    Searches the web using DuckDuckGo. Returns titles, descriptions, and URLs.
+    Format: 'search_term' or 'search_term|number_of_results'
+    Example: 'Python tutorials|5'
+    """
+    try:
+        # Parse query for number of results
+        if '|' in query:
+            search_term, num_str = query.split('|', 1)
+            try:
+                num_results = min(int(num_str.strip()), 5)  # Cap at 5
+            except ValueError:
+                num_results = 3
+        else:
+            search_term = query
+            num_results = 3
+        
+        with DDGS() as ddgs:
+            results = list(ddgs.text(search_term, max_results=num_results))
+        
+        if not results:
+            return "No search results found."
+        
+        formatted_results = []
+        for i, result in enumerate(results, 1):
+            title = result.get('title', 'No title')
+            body = result.get('body', 'No description')
+            href = result.get('href', 'No URL')
+            formatted_results.append(f"{i}. {title}\n   {body}\n   URL: {href}")
+        
+        return "\n\n".join(formatted_results)
+        
+    except Exception as e:
+        logger.error(f"Web search error: {e}")
+        return f"Search failed: {str(e)}"
+
+@tool
+def web_content_extractor(url: str) -> str:
+    """
+    Extracts text content from a webpage.
+    Example: 'https://example.com'
+    """
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.decompose()
+        
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = ' '.join(chunk for chunk in chunks if chunk)
+        
+        # Limit output length
+        if len(text) > 1500:
+            text = text[:1500] + "... (content truncated)"
+        
+        return text
+        
+    except Exception as e:
+        return f"Failed to extract content: {str(e)}"
+
+@tool
+def file_manager(command: str) -> str:
+    """
+    File operations. Commands:
+    - read:filename - Read file content
+    - write:filename:content - Write content to file
+    - append:filename:content - Append content to file
+    - delete:filename - Delete file
+    - list:directory - List files in directory (use '.' for current)
+    """
+    try:
+        parts = command.split(':', 2)
+        operation = parts[0].lower()
+        
+        if operation == "read":
+            filename = parts[1]
+            with open(filename, 'r', encoding='utf-8') as f:
+                return f.read()
+                
+        elif operation == "write":
+            filename = parts[1]
+            content = parts[2] if len(parts) > 2 else ""
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(content)
+            return f"Successfully wrote to {filename}"
+            
+        elif operation == "append":
+            filename = parts[1]
+            content = parts[2] if len(parts) > 2 else ""
+            with open(filename, 'a', encoding='utf-8') as f:
+                f.write(content)
+            return f"Successfully appended to {filename}"
+            
+        elif operation == "delete":
+            filename = parts[1]
+            os.remove(filename)
+            return f"Successfully deleted {filename}"
+            
+        elif operation == "list":
+            directory = parts[1] if len(parts) > 1 else "."
+            files = os.listdir(directory)
+            return f"Files in {directory}: {', '.join(files)}"
+            
+        else:
+            return "Invalid operation. Use: read, write, append, delete, or list"
+            
+    except Exception as e:
+        return f"File operation failed: {str(e)}"
+
+@tool
+def date_time_tool(command: str) -> str:
+    """
+    Date and time operations. Commands:
+    - current - Get current date and time
+    - parse:date_string - Parse a date string
+    - diff:date1,date2 - Calculate difference between dates
+    - format:date_string:format - Format a date
+    """
+    try:
+        parts = command.split(':', 2)
+        operation = parts[0].lower()
+        
+        if operation == "current":
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+        elif operation == "parse":
+            date_string = parts[1]
+            parsed_date = date_parser.parse(date_string)
+            return parsed_date.strftime("%Y-%m-%d %H:%M:%S")
+            
+        elif operation == "diff":
+            dates = parts[1].split(',')
+            date1 = date_parser.parse(dates[0].strip())
+            date2 = date_parser.parse(dates[1].strip())
+            diff = abs((date2 - date1).days)
+            return f"Difference: {diff} days"
+            
+        elif operation == "format":
+            date_string = parts[1]
+            format_string = parts[2] if len(parts) > 2 else "%Y-%m-%d"
+            parsed_date = date_parser.parse(date_string)
+            return parsed_date.strftime(format_string)
+            
+        else:
+            return "Invalid operation. Use: current, parse, diff, or format"
+            
+    except Exception as e:
+        return f"Date/time operation failed: {str(e)}"
+
+@tool
+def data_processor(command: str) -> str:
+    """
+    Data processing operations. Commands:
+    - count:text - Count words, characters, lines
+    - json_parse:json_string - Parse JSON data
+    - json_format:json_string - Format JSON nicely
+    - stats:text - Get text statistics
+    - csv:csv_data - Process CSV data (basic)
+    """
+    try:
+        parts = command.split(':', 1)
+        operation = parts[0].lower()
+        data = parts[1] if len(parts) > 1 else ""
+        
+        if operation == "count":
+            words = len(data.split())
+            chars = len(data)
+            lines = len(data.splitlines())
+            return f"Words: {words}, Characters: {chars}, Lines: {lines}"
+            
+        elif operation == "json_parse":
+            parsed = json.loads(data)
+            return f"Parsed JSON: {json.dumps(parsed, indent=2)}"
+            
+        elif operation == "json_format":
+            parsed = json.loads(data)
+            return json.dumps(parsed, indent=2)
+            
+        elif operation == "stats":
+            words = data.split()
+            unique_words = set(word.lower().strip('.,!?') for word in words)
+            avg_word_length = sum(len(word) for word in words) / len(words) if words else 0
+            return f"Total words: {len(words)}, Unique words: {len(unique_words)}, Avg word length: {avg_word_length:.2f}"
+            
+        elif operation == "csv":
+            lines = data.strip().split('\n')
+            rows = [line.split(',') for line in lines]
+            return f"CSV processed: {len(rows)} rows, {len(rows[0]) if rows else 0} columns"
+            
+        else:
+            return "Invalid operation. Use: count, json_parse, json_format, stats, or csv"
+            
+    except Exception as e:
+        return f"Data processing failed: {str(e)}"
+
+@tool
+def system_info(query: str = "") -> str:
+    """
+    Get system information.
+    Optional query parameter for specific info.
+    """
+    try:
+        info = {
+            "platform": platform.system(),
+            "platform_release": platform.release(),
+            "platform_version": platform.version(),
+            "architecture": platform.machine(),
+            "hostname": platform.node(),
+            "processor": platform.processor(),
+            "python_version": platform.python_version()
+        }
+        
+        # Try to get additional info if psutil is available
+        try:
+            import psutil
+            info.update({
+                "cpu_count": psutil.cpu_count(),
+                "memory_total": f"{psutil.virtual_memory().total / (1024**3):.2f} GB",
+                "disk_usage": f"{psutil.disk_usage('/').percent}%"
+            })
+        except ImportError:
+            info["note"] = "Install psutil for more detailed system info"
+        
+        return json.dumps(info, indent=2)
+        
+    except Exception as e:
+        return f"Failed to get system info: {str(e)}"
+
+# List of all tools
+tools = [
+    advanced_calculator,
+    enhanced_web_search,
+    web_content_extractor,
+    file_manager,
+    date_time_tool,
+    data_processor,
+    system_info
+]
+
+# Memory setup
+memory = ConversationBufferWindowMemory(
+    k=5,
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# Agent prompt
+prompt_template = """
+You are an intelligent assistant with access to various tools. Use these tools to help answer questions and complete tasks effectively.
+
+Available tools:
+{tools}
+
+Tool descriptions:
+{tool_names}
+
+Use the following format:
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+When using tools:
+1. Be specific and clear in your action inputs
+2. Use appropriate tools for each task
+3. Provide helpful, detailed responses
+4. If a tool fails, try alternative approaches
+
+Previous conversation:
+{chat_history}
+
+Question: {input}
+{agent_scratchpad}
+"""
+
+prompt = PromptTemplate(
+    template=prompt_template,
+    input_variables=["input", "chat_history", "agent_scratchpad"],
+    partial_variables={
+        "tools": "\n".join([f"{tool.name}: {tool.description}" for tool in tools]),
+        "tool_names": ", ".join([tool.name for tool in tools])
+    }
+)
+
+# Create the ReAct agent
+react_agent = create_react_agent(
+    llm=llm,
+    tools=tools,
+    prompt=prompt
+)
+
+# Create the agent executor
+agent = AgentExecutor(
+    agent=react_agent,
+    tools=tools,
+    memory=memory,
+    verbose=True,
+    max_iterations=3,
+    handle_parsing_errors=True,
+    return_only_outputs=True,
+    early_stopping_method="generate"
+)
+
+# Enhanced Agent Class
+class EnhancedAgent:
+    def __init__(self, agent):
+        self.agent = agent
+        self.conversation_log = []
+        self.request_count = 0
+        self.max_requests_per_session = 20
+        
+    def run(self, query: str) -> str:
+        """Run a query with quota management and logging."""
+        if self.request_count >= self.max_requests_per_session:
+            return "Quota exceeded. Please reset quota or start a new session."
+        
+        try:
+            start_time = time.time()
+            logger.info(f"Processing query: {query}")
+            
+            response = self.agent.invoke({"input": query})
+            
+            # Extract the output based on the response structure
+            if isinstance(response, dict):
+                output = response.get('output', str(response))
+            else:
+                output = str(response)
+            
+            end_time = time.time()
+            processing_time = end_time - start_time
+            
+            # Log the conversation
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "query": query,
+                "response": output,
+                "processing_time": processing_time,
+                "request_number": self.request_count + 1
+            }
+            self.conversation_log.append(log_entry)
+            self.request_count += 1
+            
+            logger.info(f"Query processed successfully in {processing_time:.2f} seconds")
+            return output
+            
+        except Exception as e:
+            error_msg = f"Error processing query: {str(e)}"
+            logger.error(error_msg)
+            
+            # Log the error
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "query": query,
+                "response": error_msg,
+                "processing_time": 0,
+                "request_number": self.request_count + 1,
+                "error": True
+            }
+            self.conversation_log.append(log_entry)
+            self.request_count += 1
+            
+            return error_msg
+    
+    def run_with_retry(self, query: str, max_retries: int = 2) -> str:
+        """Run query with retry logic for transient errors."""
+        for attempt in range(max_retries + 1):
+            try:
+                return self.run(query)
+            except Exception as e:
+                if attempt == max_retries:
+                    return f"Failed after {max_retries + 1} attempts: {str(e)}"
+                
+                logger.warning(f"Attempt {attempt + 1} failed: {str(e)}. Retrying in {2 ** attempt} seconds...")
+                time.sleep(2 ** attempt)  # Exponential backoff
+        
+        return "Max retries exceeded"
+    
+    def get_conversation_history(self) -> List[Dict]:
+        """Get the conversation history."""
+        return self.conversation_log
+    
+    def save_conversation(self, filename: str = "conversation_log.json"):
+        """Save conversation log to a JSON file."""
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(self.conversation_log, f, indent=2, ensure_ascii=False)
+            return f"Conversation saved to {filename}"
+        except Exception as e:
+            return f"Failed to save conversation: {str(e)}"
+    
+    def reset_quota(self):
+        """Reset the request counter."""
+        self.request_count = 0
+        logger.info("Request quota reset")
+
+# Main execution
+if __name__ == "__main__":
+    # Create enhanced agent
+    enhanced_agent = EnhancedAgent(agent)
+    
+    # Create example file if it doesn't exist
+    if not os.path.exists("example.txt"):
+        with open("example.txt", "w") as f:
+            f.write("Hello, this is a test file!\nIt contains some text for the file_manager tool to read.\nThis is line 3.")
+    
+    # Test queries
+    test_queries = [
+        "What is the square root of 144 plus sin(pi/2)?",
+        "Calculate the difference in days between 2024-01-01 and 2024-12-31 using date_time_tool diff:2024-01-01,2024-12-31",
+        "Count words in this text using data_processor count:The quick brown fox jumps over the lazy dog",
+        "Process this JSON data using data_processor json_parse:{\"name\": \"John\", \"age\": 30, \"city\": \"New York\"}",
+        "Read the content of example.txt using file_manager with read:example.txt",
+        "Get the current date and time using date_time_tool with current",
+        "Show me system information",
+        "Search for recent developments in artificial intelligence",
+        "Create a file called 'test_output.txt' with content using file_manager write:test_output.txt:Hello from the enhanced agent!",
+        "List all files in the current directory using file_manager list:."
+    ]
+    
+    print("Starting Enhanced LangChain Agent Tests...")
+    print("=" * 50)
+    
+    for i, query in enumerate(test_queries, 1):
+        print(f"\nTest {i}/{len(test_queries)}: {query}")
+        print("-" * 50)
+        
+        try:
+            response = enhanced_agent.run_with_retry(query)
+            print(f"Response: {response}")
+        except Exception as e:
+            print(f"Test failed: {str(e)}")
+            break
+        
+        # Add delay to avoid rate limits
+        if i < len(test_queries):
+            print("Waiting 5 seconds before next test...")
+            time.sleep(5)
+    
+    print("\n" + "=" * 50)
+    print("Testing completed!")
+    
+    # Save conversation log
+    save_result = enhanced_agent.save_conversation("test_conversation_log.json")
+    print(f"Conversation log: {save_result}")
+    
+    # Display summary
+    history = enhanced_agent.get_conversation_history()
+    successful_queries = len([entry for entry in history if not entry.get('error', False)])
+    print(f"Summary: {successful_queries}/{len(history)} queries completed successfully")
+```
+
+## 3. Setup Instructions
+
+1. **Get Google API Key**: 
+   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key
+   - Replace `"YOUR_GOOGLE_API_KEY_HERE"` with your actual key
+
+2. **Run the Code**:
+   - Save the code to a file (e.g., `enhanced_agent.py`)
+   - Run: `python enhanced_agent.py`
+
+## 4. Usage Examples
+
+After running the main script, you can also use the agent interactively:
+
+```python
+# Interactive usage example
+enhanced_agent = EnhancedAgent(agent)
+
+# Ask questions
+response = enhanced_agent.run("What is 2 + 2 multiplied by sin(pi/4)?")
+print(response)
+
+# Search the web
+response = enhanced_agent.run("Search for Python machine learning tutorials")
+print(response)
+
+# Work with files
+response = enhanced_agent.run("Create a file called 'notes.txt' with content 'My AI agent notes'")
+print(response)
+
+# Get conversation history
+history = enhanced_agent.get_conversation_history()
+print(f"Total queries: {len(history)}")
+```
+
+## 5. Available Tools
+
+1. **advanced_calculator**: Math operations, trig functions, constants
+2. **enhanced_web_search**: DuckDuckGo web search
+3. **web_content_extractor**: Extract text from web pages  
+4. **file_manager**: Read, write, delete, list files
+5. **date_time_tool**: Date/time operations and calculations
+6. **data_processor**: Text analysis, JSON processing, basic CSV
+7. **system_info**: System information and stats
+
+## 6. Key Features
+
+- **Memory Management**: Remembers last 5 conversation turns
+- **Error Handling**: Robust error recovery and logging
+- **Quota Management**: Limits API calls (20 per session)
+- **Retry Logic**: Automatic retries for transient failures
+- **Conversation Logging**: Saves all interactions to JSON
+- **Verbose Output**: Shows reasoning steps
+
+## Important Notes
+
+- Replace the API key before running
+- The agent has a 20-query limit per session (configurable)
+- All conversations are logged and can be saved to files
+- Web search uses DuckDuckGo (no API key required)
+- File operations are performed in the current directory
