@@ -1,4 +1,4 @@
-# Walkthrough of the LangChain Agent Code
+# Walkthrough of the LangChain Expanded Agent Code
 
 This code builds a LangChain agent using Google's Gemini 1.5 Flash model, extending the concepts from "Part 1" (a basic Gemini-based agent) by incorporating three tools: a calculator, a web search tool using DuckDuckGo, and a file reader. The agent is designed for university students to explore how AI agents can leverage tools for practical tasks.
 
