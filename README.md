@@ -22,6 +22,16 @@ The repository currently includes two folders, with more to be added as the seri
   - langchain_expanded.ipynb: Google Colab notebook with an agent integrating three tools: calculator (math queries), DuckDuckGo web search (e.g., Python tutorials), and file reader (local text files). Includes memory and verbose output.
   - example.txt: Sample file for the file reader tool.
   - walkthrough.txt: Student-friendly guide explaining the code, tools, and next steps.
+ 
+- **C_Langchain_ReAct**: Advanced ReAct-based AI Agent with Multiple Tools
+  - This folder is designed for students ready to explore advanced agent architectures, understanding how reasoning frameworks and multiple tools can be leveraged to tackle complex, real-world problems.
+  - Advances the series by introducing the ReAct (Reasoning and Acting) framework, enabling the agent to reason about its actions and use tools more effectively.
+  - C_Langchain_ReAct.ipynb: Google Colab notebook featuring an agent built with LangChain and Gemini 1.5 Flash (free tier). The agent integrates a variety of tools for tasks such as  mathematical calculations, web searches, file operations, and data processing, while using memory for contextual awareness.
+  - conversation_log.json: Demonstrates memory usage by logging interactions.
+  - walkthrough.txt: Comprehensive tutorial explaining the ReAct framework, tool integration, memory management, and strategies for managing API quotas.
+  - test_output.txt and example.txt: Files for practical testing and demonstrations.
+
+
 
 Future folders will include more advanced agents, such as those integrating web APIs, memory, or multi-tool workflows.
 
