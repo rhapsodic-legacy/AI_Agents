@@ -31,7 +31,11 @@ The repository currently includes two folders, with more to be added as the seri
   - walkthrough.txt: Comprehensive tutorial explaining the ReAct framework, tool integration, memory management, and strategies for managing API quotas.
   - test_output.txt and example.txt: Files for practical testing and demonstrations.
 
-
+**D_AutoGPT_Basic**: Simplified AutoGPT for Python Task Automation
+  - Introduces an alternative approach to task automation with a static, beginner-friendly AutoGPT-like agent for Python tasks, focusing on data analysis.
+  - Complements the LangChain agents by demonstrating a different method for automating workflows.
+  - auto_gpt_data_analysis.ipynb: AI agent breaks down objectives, generates and executes predefined Python code, and manages the process without external API dependencies.
+  - walkthrough.txt: Detailed tutorial for hands-on learning. 
 
 Future folders will include more advanced agents, such as those integrating web APIs, memory, or multi-tool workflows.
 
