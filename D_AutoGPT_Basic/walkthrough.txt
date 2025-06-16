@@ -1,0 +1,133 @@
+# AutoGPT Basic Agent for Python Tasks
+
+## Overview
+
+This code implements a simplified version of an AutoGPT agent designed to automate Python tasks based on a user-provided objective. The agent breaks down the objective into smaller tasks, generates Python code for each task, executes the code, and manages the overall process. It is particularly tailored for common tasks such as data analysis, file processing, web application setup, and algorithm implementation.
+
+## Usage
+
+To use the AutoGPT agent, create an instance of the `PythonAutoGPT` class with your desired objective and call the `run` method.
+
+**Example:**
+```python
+agent = PythonAutoGPT("Perform data analysis on a sample dataset with visualizations")
+agent.run()
+```
+
+## How It Works
+
+The agent follows these main steps to achieve the given objective:
+
+### 1. Task Generation
+- The agent analyzes the objective using simple keyword matching to determine the type of tasks required
+- Based on keywords in the objective (e.g., "data analysis," "web app," "algorithm," "file processing"), it generates a predefined list of tasks
+
+**Examples:**
+- **Data analysis:** Import libraries, load data, explore data, create visualizations, generate summary statistics
+- **Web app:** Set up Flask/FastAPI, create routes, add templates, implement functionality, test the application
+- **Algorithm:** Define structure, implement logic, create test cases, optimize, document
+- **File processing:** Set up utilities, read/parse files, process data, generate output, validate results
+- If no keywords match, a generic set of tasks is generated
+
+### 2. Code Generation
+- For each task, the agent generates Python code based on the task description
+- The code is predefined for specific task types:
+  - **Data analysis tasks:** Code for importing libraries (pandas, numpy, matplotlib), loading or generating sample data, performing data exploration, creating visualizations (histograms, scatter plots, correlation heatmaps), and generating summary statistics
+  - **Other tasks:** Generic placeholder code is generated
+- The code generation is static and does not adapt dynamically to the objective beyond keyword matching
+
+### 3. Code Execution
+- The agent executes the generated code for each task by writing it to a temporary file and running it using the Python interpreter
+- It captures the output and any errors from the execution
+- For data analysis tasks, it checks for a `sample_data` folder to load real data (CSV files). If not found, it generates sample data
+- Visualizations are saved as PNG files in a `plots` directory using matplotlib with the 'Agg' backend (for non-interactive environments)
+
+### 4. Process Management
+- The agent executes tasks sequentially, tracking their status (pending, in progress, completed, or failed)
+- It continues executing tasks until all are completed, a maximum number of iterations (10) is reached, or too many tasks fail (more than 50%)
+- After execution, it prints a summary of the tasks, including their statuses and any generated visualizations
+
+## Key Components
+
+### PythonAutoGPT Class
+The main class that manages the entire process, including task generation, code generation, execution, and process control.
+
+**Attributes:**
+- `objective`: The user-provided goal
+- `tasks`: List of Task objects
+- `task_counter`: Tracks task IDs
+- `max_iterations`: Maximum number of iterations (default: 10)
+- `current_iteration`: Current iteration count
+
+### Task Class
+Represents an individual task with attributes:
+- `id`: Unique identifier
+- `description`: Task description
+- `status`: Current status (pending, in progress, completed, failed)
+- `code_to_execute`: Generated code for the task
+- `result`: Output from execution
+- `error`: Any execution errors
+
+### Key Methods
+- `generate_tasks`: Generates a list of tasks based on the objective using keyword matching
+- `create_task`: Creates a new task with a unique ID and adds it to the task list
+- `generate_code_for_task`: Generates predefined Python code based on the task description
+- `execute_code`: Executes the generated code by writing it to a temporary file and running it, capturing output and errors
+- `execute_task`: Manages the execution of a single task, including code generation and execution
+- `should_continue`: Determines whether the agent should continue executing tasks based on iteration limits and task statuses
+- `run`: The main execution loop that generates tasks, executes them, and manages the overall process
+- `print_summary`: Prints a summary of the execution, including task statuses and any generated visualizations
+
+## Data Analysis Features
+
+For objectives related to data analysis, the agent provides specific functionality:
+
+### Data Loading
+- Attempts to load real data from a `sample_data` folder (CSV files)
+- If not found, generates sample data using pandas and numpy with columns like date, sales, temperature, category, region, price, and score
+
+### Data Exploration
+Prints dataset information, including:
+- Shape, column names, and data types
+- Missing values
+- First and last few rows
+- Basic statistics for numeric columns
+- Unique value counts for categorical columns
+
+### Visualizations
+Generates and saves various plots in the `plots` directory, including:
+- **Distribution Plots:** Histograms for numeric columns with mean and median lines
+- **Categorical Plots:** Bar plots for top categories in categorical columns
+- **Correlation Heatmap:** Heatmap of correlations between numeric variables
+- **Scatter Plots:** Scatter plots for pairs of numeric variables, optionally colored by a categorical variable
+- **Box Plots:** Box plots of numeric variables grouped by a categorical variable
+- **Summary Dashboard:** A composite plot with dataset overview, histogram, bar plot, correlation heatmap, and scatter plot
+
+### Summary Statistics
+Provides detailed statistics, including:
+- **Numeric variables:** Range, IQR, skewness, missing values
+- **Categorical variables:** Unique values, most frequent value, distribution
+- **Correlation analysis:** Identifies highly correlated pairs (|r| > 0.5)
+- **Data quality:** Missing values, duplicates, key insights
+
+## Limitations
+
+- **Task Generation:** Relies on simple keyword matching, which may not accurately capture complex objectives
+- **Code Generation:** Uses predefined snippets, limiting flexibility and context-awareness
+- **Execution:** Limited to Python code; no support for other languages
+- **Adaptability:** Does not learn or adapt from previous executions
+- **Error Handling:** Basic; failed tasks are marked but not retried or corrected
+
+## Future Improvements
+
+- Integrate a large language model (LLM) for dynamic task and code generation
+- Add support for additional programming languages
+- Implement a feedback loop to improve performance based on past executions
+- Enhance error handling with retries and detailed reporting
+- Expand predefined tasks and code snippets for broader applicability
+
+## Conclusion
+
+This beginner's AutoGPT code provides a foundational framework for automating Python tasks, with a focus on data analysis. It demonstrates how an AI agent can break down objectives, generate and execute code, and produce outputs like visualizations and summaries. While limited in flexibility, it serves as a starting point for more advanced autonomous AI agents.
+
+This documentation provides a clear, concise guide to understanding and using the AutoGPT code, tailored to beginners while highlighting its capabilities and potential for growth.
