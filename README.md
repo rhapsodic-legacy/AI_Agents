@@ -10,6 +10,7 @@ Whether you're a beginner or advancing toward complex projects, this repo provid
 The repository currently includes two folders, with more to be added as the series expands:
  
 - **A_Langchain_Simple**: The starting point for your AI agent journey.
+  Contents:
   - `first_agent.ipynb`: A Google Colab notebook containing a simple but functional AI agent built with LangChain and Google’s Gemini 1.5 Flash (free tier). This agent uses a calculator tool to solve math queries, like "What is 5 + 3 * 2?".
   - `building_your_first_agent.txt`: A detailed, student-friendly tutorial covering:
     - What an AI agent is.
@@ -18,7 +19,8 @@ The repository currently includes two folders, with more to be added as the seri
     - Tips for optimizing free-tier usage to stay within API limits.
 
 - **B_Langchain_Expanded**: Multi-Tool AI Agent
-  - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).  
+  - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).
+  Contents:  
   - langchain_expanded.ipynb: Google Colab notebook with an agent integrating three tools: calculator (math queries), DuckDuckGo web search (e.g., Python tutorials), and file reader (local text files). Includes memory and verbose output.
   - example.txt: Sample file for the file reader tool.
   - walkthrough.txt: Student-friendly guide explaining the code, tools, and next steps.
@@ -26,6 +28,7 @@ The repository currently includes two folders, with more to be added as the seri
 - **C_Langchain_ReAct**: Advanced ReAct-based AI Agent with Multiple Tools
   - This folder is designed for students ready to explore advanced agent architectures, understanding how reasoning frameworks and multiple tools can be leveraged to tackle complex, real-world problems.
   - Advances the series by introducing the ReAct (Reasoning and Acting) framework, enabling the agent to reason about its actions and use tools more effectively.
+  Contents:
   - C_Langchain_ReAct.ipynb: Google Colab notebook featuring an agent built with LangChain and Gemini 1.5 Flash (free tier). The agent integrates a variety of tools for tasks such as  mathematical calculations, web searches, file operations, and data processing, while using memory for contextual awareness.
   - conversation_log.json: Demonstrates memory usage by logging interactions.
   - walkthrough.txt: Comprehensive tutorial explaining the ReAct framework, tool integration, memory management, and strategies for managing API quotas.
@@ -34,8 +37,26 @@ The repository currently includes two folders, with more to be added as the seri
 **D_AutoGPT_Basic**: Simplified AutoGPT for Python Task Automation
   - Introduces an alternative approach to task automation with a static, beginner-friendly AutoGPT-like agent for Python tasks, focusing on data analysis.
   - Complements the LangChain agents by demonstrating a different method for automating workflows.
+  Contents:
   - auto_gpt_data_analysis.ipynb: AI agent breaks down objectives, generates and executes predefined Python code, and manages the process without external API dependencies.
   - walkthrough.txt: Detailed tutorial for hands-on learning. 
+
+**E_AutoGPT_Gemini_1**: AI-Powered AutoGPT with Gemini Integration
+
+  - AI API Powerhouse: This folder demonstrates how powerful using an AI API can be. By calling the Gemini API, the agent replaces many lines of hard-coded functions from the previous model (e.g., D_AutoGPT_Basic), making it more dynamic, adaptable, and efficient.
+
+  - Autonomous Task Mastery: The agent intelligently decomposes complex objectives into actionable tasks, generates Python code on the fly using Gemini, and executes it iteratively—perfect for tasks like data analysis, machine learning, or report generation.
+
+  - Professional Visualizations: Leveraging Gemini’s capabilities, the agent produces accurately labeled graphs and visualizations that are context-aware and publication-ready, highlighting the strength of this AI-driven approach.
+
+  - Robust Design: Includes a fallback mechanism to predefined templates when the API is unavailable, ensuring reliability in all conditions.
+
+  Contents:
+  - Auto_GPT_DA_Gemini_1.ipynb: A Google Colab notebook featuring the AutoGPT agent integrated with the Gemini API. This model automates Python-based tasks, such as data analysis, by generating and executing code dynamically based on user-defined objectives.
+
+  - walkthrough.txt: A student-friendly tutorial that breaks down the code, explains the Gemini API integration, and walks through setup, task decomposition, and code generation. It also offers tips for managing API usage effectively.
+
+
 
 Future folders will include more advanced agents, such as those integrating web APIs, memory, or multi-tool workflows.
 
