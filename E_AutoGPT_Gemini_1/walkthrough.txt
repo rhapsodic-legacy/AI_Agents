@@ -1,0 +1,191 @@
+# AutoGPT AI Agent Documentation
+
+## Overview
+
+The AutoGPT AI Agent is a Python-based system designed to automate the achievement of a specified objective by breaking it down into manageable tasks, generating Python code for each task, executing that code, and managing the process iteratively. 
+
+It integrates with Google Generative AI (Gemini) for intelligent task decomposition and code generation when available. If Gemini is not configured or accessible, the agent falls back to predefined templates tailored to common objectives like data analysis or machine learning.
+
+## Purpose
+
+The agent aims to:
+- Decompose complex objectives into actionable, sequential tasks
+- Generate executable Python code to accomplish each task
+- Execute tasks iteratively, handling successes and failures
+- Provide flexibility through AI-driven (Gemini) or template-based operation
+
+This makes it an effective tool for automating workflows in domains such as data analysis, machine learning, and report generation.
+
+## Key Features
+
+- **Objective Breakdown**: Generates 4-6 specific tasks using Gemini or predefined lists based on the objective
+- **Code Generation**: Creates Python code for tasks using Gemini or templates, building on previous task outputs
+- **Execution Management**: Runs code, captures results and errors, and updates task statuses
+- **Iterative Workflow**: Continues until tasks are completed, failures exceed a threshold, or a maximum iteration limit is reached
+- **Fallback Mechanism**: Uses predefined templates if Gemini is unavailable, ensuring functionality
+- **User Feedback**: Outputs detailed progress updates and a summary, including generated files
+
+## Code Structure
+
+The code is organized into modular components, each with a specific role:
+
+### 1. Imports and Dependencies
+
+```python
+import json, subprocess, sys, os, time
+from typing import List, Dict, Any
+from dataclasses import dataclass
+from enum import Enum
+
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+```
+
+**Purpose**: Imports standard libraries and attempts to import Gemini, setting a flag (`GENAI_AVAILABLE`) to track availability.
+
+**External Libraries**: Uses pandas, numpy, matplotlib, seaborn in generated code.
+
+### 2. TaskStatus Enum
+
+```python
+class TaskStatus(Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+```
+
+**Purpose**: Defines task states for tracking execution progress.
+
+**Why**: Provides a clear, consistent way to monitor and report task outcomes.
+
+### 3. Task Dataclass
+
+```python
+@dataclass
+class Task:
+    id: int
+    description: str
+    status: TaskStatus
+    code_to_execute: str = ""
+    result: str = ""
+    error: str = ""
+```
+
+**Purpose**: Encapsulates task details, including ID, description, status, code, result, and errors.
+
+**Why**: Simplifies task management by grouping related data in a single object.
+
+### 4. GeminiAutoGPT Class
+
+The core class with methods to manage the agent's workflow:
+
+#### `__init__(self, objective: str, api_key: str = None)`
+- **Purpose**: Initializes the agent with an objective and optional Gemini API key, setting up tasks and Gemini if available
+- **Why**: Allows flexible configuration and ensures the agent can operate with or without Gemini
+
+#### `generate_tasks(self) -> List[str]`
+- **Purpose**: Creates a list of tasks using Gemini or predefined templates based on the objective (e.g., "data analysis")
+- **Why**: Ensures task generation is adaptive and robust, with a fallback for offline or API-unavailable scenarios
+
+#### `create_task(self, description: str) -> Task`
+- **Purpose**: Adds a new task to the list with a unique ID
+- **Why**: Keeps task creation simple and centralized
+
+#### `generate_code_for_task(self, task: Task) -> str`
+- **Purpose**: Generates Python code using Gemini (with context from prior tasks) or templates
+- **Why**: Provides intelligent, context-aware code or reliable defaults, enhancing flexibility
+
+#### `get_template_code(self, task: Task) -> str`
+- **Purpose**: Returns predefined code for common tasks (e.g., importing libraries, generating data)
+- **Why**: Ensures functionality without Gemini, targeting typical use cases like data analysis
+
+#### `execute_code(self, code: str) -> tuple[str, str]`
+- **Purpose**: Executes code cumulatively (with prior successful tasks) in a temporary file, capturing output and errors
+- **Why**: Maintains state across tasks and isolates execution for safety and debugging
+
+#### `execute_task(self, task: Task) -> bool`
+- **Purpose**: Manages a task's lifecycle: generates code, executes it, updates status, and provides feedback
+- **Why**: Encapsulates the execution process, making it repeatable and transparent
+
+#### `should_continue(self) -> bool`
+- **Purpose**: Checks if execution should proceed based on iterations, task statuses, and failure rates
+- **Why**: Prevents infinite loops and stops on excessive failures, balancing efficiency and reliability
+
+#### `run(self)`
+- **Purpose**: Orchestrates the main loop: generates tasks, executes them, and summarizes results
+- **Why**: Provides a single entry point for the agent's operation, simplifying usage
+
+#### `print_summary(self)`
+- **Purpose**: Displays a detailed summary of tasks, statuses, and generated files
+- **Why**: Enhances transparency, helping users understand outcomes and access results
+
+### 5. Example Usage
+
+```python
+if __name__ == "__main__":
+    objectives = ["Perform comprehensive data analysis...", ...]
+    agent = GeminiAutoGPT(objectives[0], api_key=None)
+    agent.run()
+```
+
+**Purpose**: Demonstrates how to initialize and run the agent with a sample objective.
+
+**Why**: Offers a practical starting point for users.
+
+## Design Philosophy
+
+### Why It's Structured This Way
+
+- **Modularity**: Separate methods allow easy updates (e.g., adding new templates) without affecting the whole system
+- **Flexibility**: Supports Gemini for advanced functionality and templates for basic operation, broadening usability
+- **Robustness**: Error handling and status tracking ensure graceful failure management
+- **Cumulative Execution**: Running code cumulatively maintains context, vital for sequential tasks like data pipelines
+- **Transparency**: Extensive logging and summaries keep users informed, aiding debugging and trust
+
+## How to Use
+
+### 1. Install Dependencies
+
+```bash
+pip install pandas numpy matplotlib seaborn google-generativeai
+```
+
+### 2. Configure (Optional)
+
+Uncomment and set `GEMINI_API_KEY` in the code with a valid key for Gemini functionality.
+
+### 3. Run the Agent
+
+```python
+agent = GeminiAutoGPT("Your objective here", api_key="YOUR_KEY_HERE")
+agent.run()
+```
+
+### 4. Review Outputs
+
+- Check console logs for progress and results
+- Look in `plots/` and `data/` directories for generated files
+
+## Outputs
+
+### Console
+Task progress, code previews, execution results, and a summary.
+
+### Files
+- **Plots**: e.g., `plots/business_dashboard.png`
+- **Datasets**: e.g., `data/business_data.csv`
+- **Reports**: e.g., `business_analysis_report.txt`
+
+## Limitations
+
+- **Gemini Dependency**: Without Gemini, functionality is limited to predefined templates
+- **Template Scope**: Templates focus on data analysis and ML, potentially missing other objectives
+- **Cumulative Risks**: Namespace conflicts or variable overwrites may occur in complex workflows
+
+## Conclusion
+
+The AutoGPT AI Agent automates objective-driven tasks with a blend of AI sophistication (via Gemini) and reliable defaults (via templates). Its modular, flexible design makes it a powerful tool for users automating data-centric workflows, balancing advanced capabilities with practical usability.
