@@ -41,15 +41,15 @@ The repository currently includes two folders, with more to be added as the seri
   - auto_gpt_data_analysis.ipynb: AI agent breaks down objectives, generates and executes predefined Python code, and manages the process without external API dependencies.
   - walkthrough.txt: Detailed tutorial for hands-on learning. 
 
-**E_AutoGPT_Gemini_1**: AI-Powered AutoGPT with Gemini Integration
+**E_AutoGPT_Gemini_1**: AI-Powered AutoGPT with Gemini Integration, harnessing true agentic AI
 
-  - AI API Powerhouse: This folder demonstrates how powerful using an AI API can be. By calling the Gemini API, the agent replaces many lines of hard-coded functions from the previous model (e.g., D_AutoGPT_Basic), making it more dynamic, adaptable, and efficient.
+  - *AI API Powerhouse*: This folder demonstrates how powerful using an AI API can be. By calling the Gemini API, the agent replaces many lines of hard-coded functions from the previous model (e.g., D_AutoGPT_Basic), making it more dynamic, adaptable, and efficient.
 
-  - Autonomous Task Mastery: The agent intelligently decomposes complex objectives into actionable tasks, generates Python code on the fly using Gemini, and executes it iteratively—perfect for tasks like data analysis, machine learning, or report generation.
+  - *Autonomous Task Mastery*: The agent intelligently decomposes complex objectives into actionable tasks, generates Python code on the fly using Gemini, and executes it iteratively—perfect for tasks like data analysis, machine learning, or report generation.
 
-  - Professional Visualizations: Leveraging Gemini’s capabilities, the agent produces accurately labeled graphs and visualizations that are context-aware and publication-ready, highlighting the strength of this AI-driven approach.
+  - *Professional Visualizations*: Leveraging Gemini’s capabilities, the agent produces accurately labeled graphs and visualizations that are context-aware and publication-ready, highlighting the strength of this AI-driven approach.
 
-  - Robust Design: Includes a fallback mechanism to predefined templates when the API is unavailable, ensuring reliability in all conditions.
+  - *Robust Design*: Includes a fallback mechanism to predefined templates when the API is unavailable, ensuring reliability in all conditions.
 
   Contents:
   - Auto_GPT_DA_Gemini_1.ipynb: A Google Colab notebook featuring the AutoGPT agent integrated with the Gemini API. This model automates Python-based tasks, such as data analysis, by generating and executing code dynamically based on user-defined objectives.
