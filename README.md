@@ -6,7 +6,7 @@ This repository is designed for students learning to build AI agents using **Lan
  
 Whether you're a beginner or advancing toward complex projects, this repo provides code, tutorials, and insights to help you master AI agent development.
 
-### Contents 
+### Contents  
 The repository currently includes two folders, with more to be added as the series expands:
    
 - **A_Langchain_Simple**: The starting point for your AI agent journey.    
