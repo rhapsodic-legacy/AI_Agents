@@ -15,7 +15,7 @@ The repository currently includes two folders, with more to be added as the seri
   - `building_your_first_agent.txt`: A detailed, student-friendly tutorial covering:  
     - What an AI agent is.
     - How to set up your environment and obtain a Gemini API key.
-    - A step-by-step walkthrough of the agent code.
+    - A step-by-step walkthrough of the agent code. 
     - Tips for optimizing free-tier usage to stay within API limits. 
 
 - **B_Langchain_Expanded**: Multi-Tool AI Agent
