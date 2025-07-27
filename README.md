@@ -1,6 +1,6 @@
 # Agents  
 ## From First Steps to Advanced Use Cases   
- 
+  
 ### Purpose
 This repository is designed for students learning to build AI agents using **LangChain**, a powerful Python framework for creating intelligent agents. The goal is to guide students from their **first simple agent** to **advanced agentic use cases**, such as task automation, web scraping, data analysis, and more. Each agent in this series builds on the previous one, introducing new concepts, tools, and real-world applications in a student-friendly, hands-on way.  
  
