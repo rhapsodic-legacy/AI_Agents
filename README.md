@@ -32,7 +32,7 @@ The repository currently includes two folders, with more to be added as the seri
   - C_Langchain_ReAct.ipynb: Google Colab notebook featuring an agent built with LangChain and Gemini 1.5 Flash (free tier). The agent integrates a variety of tools for tasks such as  mathematical calculations, web searches, file operations, and data processing, while using memory for contextual awareness.
   - conversation_log.json: Demonstrates memory usage by logging interactions.
   - walkthrough.txt: Comprehensive tutorial explaining the ReAct framework, tool integration, memory management, and strategies for managing API quotas.
-  - test_output.txt and example.txt: Files for practical testing and demonstrations.
+  - test_output.txt and example.txt: Files for practical testing and demonstrations. 
 
 **D_AutoGPT_Basic**: Simplified AutoGPT for Python Task Automation
   - Introduces an alternative approach to task automation with a static, beginner-friendly AutoGPT-like agent for Python tasks, focusing on data analysis.
