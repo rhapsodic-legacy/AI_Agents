@@ -8,7 +8,7 @@ Whether you're a beginner or advancing toward complex projects, this repo provid
    
 ### Contents   
 The repository currently includes two folders, with more to be added as the series expands:  
-   
+    
 - **A_Langchain_Simple**: The starting point for your AI agent journey.      
   Contents:  
   - `first_agent.ipynb`: A Google Colab notebook containing a simple but functional AI agent built with LangChain and Google’s Gemini 1.5 Flash (free tier). This agent uses a calculator tool to solve math queries, like "What is 5 + 3 * 2?".   
