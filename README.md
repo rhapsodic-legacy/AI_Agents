@@ -19,7 +19,7 @@ The repository currently includes two folders, with more to be added as the seri
     - Tips for optimizing free-tier usage to stay within API limits.        
      
 - **B_Langchain_Expanded**: Multi-Tool AI Agent   
-  - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).  
+  - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).   
   Contents:   
   - langchain_expanded.ipynb: Google Colab notebook with an agent integrating three tools: calculator (math queries), DuckDuckGo web search (e.g., Python tutorials), and file reader (local text files). Includes memory and verbose output.
   - example.txt: Sample file for the file reader tool.
