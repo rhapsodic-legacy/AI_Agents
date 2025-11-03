@@ -11,7 +11,7 @@ The repository currently includes two folders, with more to be added as the seri
     
 - **A_Langchain_Simple**: The starting point for your AI agent journey.          
   Contents:  
-  - `first_agent.ipynb`: A Google Colab notebook containing a simple but functional AI agent built with LangChain and Google’s Gemini 1.5 Flash (free tier). This agent uses a calculator tool to solve math queries, like "What is 5 + 3 * 2?".     
+  - `first_agent.ipynb`: A Google Colab notebook containing a simple but functional AI agent built with LangChain and Google’s Gemini 1.5 Flash (free tier). This agent uses a calculator tool to solve math queries, like "What is 5 + 3 * 2?".      
   - `building_your_first_agent.txt`: A detailed, student-friendly tutorial covering:        
     - What an AI agent is.         
     - How to set up your environment and obtain a Gemini API key.       
