@@ -17,7 +17,7 @@ The repository currently includes two folders, with more to be added as the seri
     - How to set up your environment and obtain a Gemini API key.       
     - A step-by-step walkthrough of the agent code.          
     - Tips for optimizing free-tier usage to stay within API limits.         
-         
+          
 - **B_Langchain_Expanded**: Multi-Tool AI Agent   
   - Expands on A_Langchain_Simple with a versatile agent using Gemini 1.5 Flash (free tier).   
   Contents:   
